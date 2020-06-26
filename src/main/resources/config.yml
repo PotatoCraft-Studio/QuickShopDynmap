@@ -1,0 +1,13 @@
+marker-name: QuickShop
+lang:
+  item: "Item: "
+  owner: "Owner: "
+  type: "Type: "
+  selling: "Selling"
+  buying: "Buying"
+  space: "Remaining Space: "
+  stock: "Remaining Stock: "
+  price: "Price: "
+  x: "X: "
+  y: "Y: "
+  z: "Z: "

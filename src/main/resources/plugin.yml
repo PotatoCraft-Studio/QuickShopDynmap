@@ -1,0 +1,5 @@
+name: QuickShopDynmap
+version: ${project.version}
+main: com.mcsunnyside.quickshopdynmap.QuickShopDynmap
+api-version: 1.13
+depend: [dynmap, QuickShop]
