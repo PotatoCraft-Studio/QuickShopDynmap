@@ -1,5 +1,6 @@
 package com.mcsunnyside.quickshopdynmap;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -110,25 +111,56 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             if (marker == null) {
                 return;
             }
-            StringBuilder builder = new StringBuilder();
-
-            builder.append(getConfig().getString("lang.item")).append(ChatColor.stripColor(Util.getItemStackName(shop.getItem()))).append("<br />");
-            builder.append(getConfig().getString("lang.owner")).append(Bukkit.getOfflinePlayer(shop.getOwner()).getName()).append("<br />");
-            builder.append(getConfig().getString("lang.type")).append(shop.isSelling() ? getConfig().getString("lang.selling") : getConfig().getString("lang.buying")).append("<br />");
+            String desc = getConfig().getString("lang.description");
             if (shop.isSelling()) {
-                builder.append(getConfig().getString("lang.stock")).append(shop.getRemainingStock()).append("<br />");
+                desc = fillArgs(desc,
+                        ChatColor.stripColor(Util.getItemStackName(shop.getItem())),
+                        Bukkit.getOfflinePlayer(shop.getOwner()).getName(),
+                        getConfig().getString("lang.selling"),
+                        fillArgs(getConfig().getString("lang.stockdesc"), String.valueOf(shop.getRemainingStock())),
+                        String.valueOf(shop.getPrice()),
+                        String.valueOf(shop.getLocation().getBlockX()),
+                        String.valueOf(shop.getLocation().getBlockY()),
+                        String.valueOf(shop.getLocation().getBlockZ())
+                );
             } else {
-                builder.append(getConfig().getString("lang.space")).append(shop.getRemainingSpace()).append("<br />");
+                desc = fillArgs(desc,
+                        ChatColor.stripColor(Util.getItemStackName(shop.getItem())),
+                        Bukkit.getOfflinePlayer(shop.getOwner()).getName(),
+                        getConfig().getString("lang.buying"),
+                        fillArgs(getConfig().getString("lang.spacedesc"), String.valueOf(shop.getRemainingSpace())),
+                        String.valueOf(shop.getPrice()),
+                        String.valueOf(shop.getLocation().getBlockX()),
+                        String.valueOf(shop.getLocation().getBlockY()),
+                        String.valueOf(shop.getLocation().getBlockZ())
+                );
             }
-            builder.append(getConfig().getString("lang.price")).append(shop.getPrice()).append("<br />");
-            builder.append("------------").append("<br />");
-            builder.append(getConfig().getString("lang.x")).append(shop.getLocation().getBlockX()).append("<br />");
-            builder.append(getConfig().getString("lang.y")).append(shop.getLocation().getBlockY()).append("<br />");
-            builder.append(getConfig().getString("lang.z")).append(shop.getLocation().getBlockZ()).append("<br />");
-
-            marker.setDescription(builder.toString());
+            marker.setDescription(desc);
         }
 
 
+    }
+
+    /**
+     * Replace args in raw to args
+     *
+     * @param raw  text
+     * @param args args
+     * @return filled text
+     */
+    public static String fillArgs(String raw, String... args) {
+        if (raw == null) {
+            return "Invalid message: null";
+        }
+        if (raw.isEmpty()) {
+            return "";
+        }
+        if (args == null) {
+            return raw;
+        }
+        for (int i = 0; i < args.length; i++) {
+            raw = StringUtils.replace(raw, "{" + i + "}", args[i] == null ? "" : args[i]);
+        }
+        return raw;
     }
 }
