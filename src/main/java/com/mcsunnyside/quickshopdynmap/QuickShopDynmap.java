@@ -24,10 +24,12 @@ import java.util.UUID;
 
 public final class QuickShopDynmap extends JavaPlugin implements Listener {
     private DynmapAPI api;
+    private MarkerSet quickShopSet;
 
     @Override
     public void onEnable() {
         // Plugin startup logic
+        getLogger().info("QuickShop Dynmap Addon - Loading...");
         saveDefaultConfig();
         Plugin dynmap = Bukkit.getPluginManager().getPlugin("dynmap");
         Plugin quickshop = Bukkit.getPluginManager().getPlugin("QuickShop");
@@ -42,6 +44,10 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             return;
         }
         api = (DynmapAPI) dynmap;
+        quickShopSet = api.getMarkerAPI().getMarkerSet("quickshop");
+        if (quickShopSet == null) {
+            quickShopSet = api.getMarkerAPI().createMarkerSet("quickshop", getConfig().getString("marker-name"), null, false);
+        }
 
         new BukkitRunnable() {
             @Override
@@ -61,24 +67,20 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             getLogger().warning("Dynmap marker api not ready, skipping...");
             return;
         }
-        MarkerSet set = markerAPI.getMarkerSet("quickshop");
-        if (set != null) {
-            set.getMarkers().forEach(Marker::deleteMarker);
-            set.deleteMarkerSet();
-        }
+        quickShopSet.deleteMarkerSet();
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onShopRemoved(ShopDeleteEvent event) {
         updateMarkers();
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onShopCreated(ShopCreateEvent event) {
         updateMarkers();
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onShopPriceChanged(ShopPriceChangeEvent event) {
         updateMarkers();
     }
@@ -89,23 +91,17 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             getLogger().warning("Dynmap marker api not ready, skipping...");
             return;
         }
-        MarkerSet set = api.getMarkerAPI().getMarkerSet("quickshop");
-        set.deleteMarkerSet();
-        set = api.getMarkerAPI().createMarkerSet("quickshop", getConfig().getString("marker-name"), null, false);
         for (Shop shop : QuickShopAPI.getShopAPI().getAllShops()) {
             if (!shop.isValid() || shop.isDeleted()) {
                 return;
             }
-            Marker marker = set.createMarker(UUID.randomUUID().toString(),
+            Marker marker = quickShopSet.createMarker(UUID.randomUUID().toString(),
                     Util.getItemStackName(shop.getItem()) + " - " + (shop.isSelling() ? getConfig().getString("lang.selling") : getConfig().getString("lang.buying")) + " - " + shop.getPrice()
                     , shop.getLocation().getWorld().getName()
                     , shop.getLocation().getBlockX()
                     , shop.getLocation().getBlockY()
                     , shop.getLocation().getBlockZ()
                     , api.getMarkerAPI().getMarkerIcon("chest"), false);
-            if (marker == null) {
-                return;
-            }
             String desc = getConfig().getString("lang.description");
             if (shop.isSelling()) {
                 desc = fillArgs(desc,
@@ -132,7 +128,6 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             }
             marker.setDescription(desc);
         }
-
     }
 
     /**
