@@ -54,7 +54,7 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             public void run() {
                 updateMarkers();
             }
-        }.runTaskTimer(this, 1, 20 * 120 * 60);
+        }.runTaskTimerAsynchronously(this, 1, 20 * 120 * 60);
 
         Bukkit.getPluginManager().registerEvents(this, this);
     }
@@ -72,19 +72,18 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onShopRemoved(ShopDeleteEvent event) {
-        updateMarkers();
+        Bukkit.getScheduler().runTaskAsynchronously(this, this::updateMarkers);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onShopCreated(ShopCreateEvent event) {
-        updateMarkers();
+        Bukkit.getScheduler().runTaskAsynchronously(this, this::updateMarkers);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onShopPriceChanged(ShopPriceChangeEvent event) {
-        updateMarkers();
+        Bukkit.getScheduler().runTaskAsynchronously(this, this::updateMarkers);
     }
-
 
     private void updateMarkers() {
         if (api.getMarkerAPI() == null) {
@@ -92,7 +91,7 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             return;
         }
         for (Shop shop : QuickShopAPI.getShopAPI().getAllShops()) {
-            if (!shop.isValid() || shop.isDeleted()) {
+            if (shop.isDeleted()) {
                 return;
             }
             Marker marker = quickShopSet.createMarker(UUID.randomUUID().toString(),
