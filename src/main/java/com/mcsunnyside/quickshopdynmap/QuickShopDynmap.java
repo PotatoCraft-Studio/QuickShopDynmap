@@ -10,6 +10,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.dynmap.DynmapAPI;
+import org.dynmap.markers.GenericMarker;
 import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
@@ -90,6 +91,7 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             getLogger().warning("Dynmap marker api not ready, skipping...");
             return;
         }
+        quickShopSet.getMarkers().forEach(GenericMarker::deleteMarker);
         for (Shop shop : QuickShopAPI.getShopAPI().getAllShops()) {
             if (shop.isDeleted()) {
                 return;
