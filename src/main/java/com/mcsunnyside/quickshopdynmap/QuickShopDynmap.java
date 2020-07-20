@@ -24,8 +24,6 @@ import java.util.UUID;
 
 public final class QuickShopDynmap extends JavaPlugin implements Listener {
     private DynmapAPI api;
-    private MarkerAPI markerAPI;
-    private MarkerSet set;
 
     @Override
     public void onEnable() {
@@ -44,8 +42,6 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             return;
         }
         api = (DynmapAPI) dynmap;
-        markerAPI = api.getMarkerAPI();
-        set = markerAPI.getMarkerSet("quickshop");
 
         new BukkitRunnable() {
             @Override
@@ -89,14 +85,13 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
 
 
     private void updateMarkers() {
-        if (markerAPI == null) {
+        if (api.getMarkerAPI() == null) {
             getLogger().warning("Dynmap marker api not ready, skipping...");
             return;
         }
-        if (set == null) {
-            set = markerAPI.createMarkerSet("quickshop", getConfig().getString("marker-name"), null, false);
-        }
-        set.getMarkers().forEach(Marker::deleteMarker);
+        MarkerSet set = api.getMarkerAPI().getMarkerSet("quickshop");
+        set.deleteMarkerSet();
+        set = api.getMarkerAPI().createMarkerSet("quickshop", getConfig().getString("marker-name"), null, false);
         for (Shop shop : QuickShopAPI.getShopAPI().getAllShops()) {
             if (!shop.isValid() || shop.isDeleted()) {
                 return;
@@ -107,7 +102,7 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
                     , shop.getLocation().getBlockX()
                     , shop.getLocation().getBlockY()
                     , shop.getLocation().getBlockZ()
-                    , markerAPI.getMarkerIcon("chest"), false);
+                    , api.getMarkerAPI().getMarkerIcon("chest"), false);
             if (marker == null) {
                 return;
             }
@@ -137,7 +132,6 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             }
             marker.setDescription(desc);
         }
-
 
     }
 
