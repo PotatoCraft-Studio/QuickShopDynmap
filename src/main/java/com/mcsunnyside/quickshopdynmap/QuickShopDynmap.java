@@ -21,8 +21,6 @@ import org.maxgamer.quickshop.event.ShopPriceChangeEvent;
 import org.maxgamer.quickshop.shop.Shop;
 import org.maxgamer.quickshop.util.Util;
 
-import java.util.UUID;
-
 public final class QuickShopDynmap extends JavaPlugin implements Listener {
     private DynmapAPI api;
     private MarkerSet quickShopSet;
@@ -96,7 +94,7 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             if (shop.isDeleted()) {
                 return;
             }
-            Marker marker = quickShopSet.createMarker(UUID.randomUUID().toString(),
+            Marker marker = quickShopSet.createMarker(shop.getRuntimeRandomUniqueId().toString(),
                     Util.getItemStackName(shop.getItem()) + " - " + (shop.isSelling() ? getConfig().getString("lang.selling") : getConfig().getString("lang.buying")) + " - " + shop.getPrice()
                     , shop.getLocation().getWorld().getName()
                     , shop.getLocation().getBlockX()
