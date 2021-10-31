@@ -15,15 +15,16 @@ import org.dynmap.markers.Marker;
 import org.dynmap.markers.MarkerAPI;
 import org.dynmap.markers.MarkerSet;
 import org.maxgamer.quickshop.api.QuickShopAPI;
-import org.maxgamer.quickshop.event.ShopCreateEvent;
-import org.maxgamer.quickshop.event.ShopDeleteEvent;
-import org.maxgamer.quickshop.event.ShopPriceChangeEvent;
-import org.maxgamer.quickshop.shop.Shop;
+import org.maxgamer.quickshop.api.event.ShopCreateEvent;
+import org.maxgamer.quickshop.api.event.ShopDeleteEvent;
+import org.maxgamer.quickshop.api.event.ShopPriceChangeEvent;
+import org.maxgamer.quickshop.api.shop.Shop;
 import org.maxgamer.quickshop.util.Util;
 
 public final class QuickShopDynmap extends JavaPlugin implements Listener {
     private DynmapAPI api;
     private MarkerSet quickShopSet;
+    private QuickShopAPI quickShopAPI;
 
     @Override
     public void onEnable() {
@@ -42,6 +43,7 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
+        this.quickShopAPI = (QuickShopAPI) quickshop;
         api = (DynmapAPI) dynmap;
         quickShopSet = api.getMarkerAPI().getMarkerSet("quickshop");
         if (quickShopSet == null) {
@@ -90,7 +92,7 @@ public final class QuickShopDynmap extends JavaPlugin implements Listener {
             return;
         }
         quickShopSet.getMarkers().forEach(GenericMarker::deleteMarker);
-        for (Shop shop : QuickShopAPI.getShopAPI().getAllShops()) {
+        for (Shop shop : quickShopAPI.getShopManager().getAllShops()) {
             if (shop.isDeleted()) {
                 return;
             }
